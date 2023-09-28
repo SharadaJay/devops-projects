@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  service1:
+    build:
+      context: ./service1
+    volumes:
+      - ./logs:/logs
+    networks:
+      - network1
+
+  service2:
+    build:
+      context: ./service2
+    volumes:
+      - ./logs:/logs
+    networks:
+      - network1
+
+networks:
+  network1:

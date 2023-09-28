@@ -1,0 +1,9 @@
+CONTAINER ID   IMAGE             COMMAND                  CREATED         STATUS         PORTS     NAMES
+a57d8e78b815   devops-service1   "./go-app"               7 minutes ago   Up 6 seconds             devops-service1-1
+2a4b53287595   devops-service2   "/bin/sh -c 'sleep 2…"   7 minutes ago   Up 6 seconds             devops-service2-1
+
+NETWORK ID     NAME              DRIVER    SCOPE
+5346ed3e15dc   bridge            bridge    local
+a874c98abab1   devops_network1   bridge    local
+9c2d585be050   host              host      local
+175e26ee0dbb   none              null      local
