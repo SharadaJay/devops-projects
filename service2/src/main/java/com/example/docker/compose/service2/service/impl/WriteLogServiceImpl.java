@@ -42,7 +42,7 @@ public class WriteLogServiceImpl implements WriteLogService {
             System.exit(exitCode);
         } else {
             writeLogMessage(msgDto.getMessage() + " " + request.getRemoteAddr() + ":" + request.getRemotePort());
-            msgRespDto.setMessage("Received Successfully")
+            msgRespDto.setMessage("Received Successfully");
         }
         return msgRespDto;
     }
