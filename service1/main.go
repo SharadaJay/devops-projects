@@ -83,7 +83,7 @@ func main() {
 		time.Sleep(2 * time.Second)
 
 		if i == 20 {
-			stopMsg := "STOP"
+			stopMsg := "SND STOP"
 			err := publishToRabbitMq(ch, logTopic, stopMsg)
 			if err != nil {
 				fmt.Println(err)
@@ -113,6 +113,7 @@ func callService(ch *amqp.Channel, logTopic string, url string, message string, 
 
 	if err != nil {
 		code = "500"
+		_ = publishToRabbitMq(ch, logTopic, err.Error())
 	} else {
 		code = strconv.Itoa(resp.StatusCode)
 	}
