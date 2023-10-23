@@ -2,7 +2,7 @@ package com.example.docker.compose.service2.controller;
 
 import com.example.docker.compose.service2.controller.dto.MsgDto;
 import com.example.docker.compose.service2.controller.dto.MsgRespDto;
-import com.example.docker.compose.service2.service.WriteLogService;
+import com.example.docker.compose.service2.service.RabbitMQService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,19 +20,20 @@ public class BaseController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final WriteLogService writeLogService;
+    private final RabbitMQService rabbitMQService;
 
-    public BaseController(WriteLogService writeLogService) {
-        this.writeLogService = writeLogService;
+    public BaseController(RabbitMQService rabbitMQService) {
+        this.rabbitMQService = rabbitMQService;
     }
 
     @PostMapping(path = "/write", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MsgRespDto> writeLog(
             @RequestBody
-            MsgDto msgDto, HttpServletRequest request) {
-
-        MsgRespDto msgRespDto = writeLogService.writeLogs(msgDto, request);
-        return new ResponseEntity<>(msgRespDto, HttpStatus.CREATED);
+            MsgDto msgDto, HttpServletRequest request) throws Exception {
+        String message = msgDto.getMessage() + " " + request.getRemoteAddr() + ":" + request.getRemotePort();
+        rabbitMQService.sendMessage(message);
+        MsgRespDto msgRespDto = new MsgRespDto();
+        return new ResponseEntity<>(msgRespDto, HttpStatus.OK);
 
     }
 }

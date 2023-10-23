@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/streadway/amqp"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -28,9 +31,33 @@ func main() {
 
 	servicePort := os.Getenv("SERVICE_2_PORT")
 	servicePath := os.Getenv("SERVICE_2_CALL_PATH")
-	logPath := os.Getenv("LOG_PATH")
+	msgTopic := os.Getenv("MSG_TOPIC")
+	logTopic := os.Getenv("LOG_TOPIC")
 	timeStampFormat := os.Getenv("TIMESTAMP_FORMAT")
 	serviceName := os.Getenv("SERVICE2_SERVICE_NAME")
+	rabbitMQServiceName := os.Getenv("RABBITMQ_SERVICE_NAME")
+
+	rabbitmqIPAddress, err := getIPAddress(rabbitMQServiceName)
+	connectionStr := "amqp://guest:guest@" + rabbitmqIPAddress + ":5672/"
+
+	isConnected := false
+	var conn *amqp.Connection
+
+	for isConnected == false {
+		conn, err = amqp.Dial(connectionStr)
+		if err != nil {
+			isConnected = false
+		} else {
+			isConnected = true
+		}
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		fmt.Println("Failed to open a channel" + err.Error())
+	}
+	defer ch.Close()
 
 	ipAddress, err := getIPAddress(serviceName)
 
@@ -38,73 +65,67 @@ func main() {
 
 	url := "http://" + ipAddress + ":" + servicePort + servicePath
 
-	file, err := os.OpenFile(logPath, os.O_WRONLY|os.O_CREATE|os.O_APPEND|os.O_TRUNC, os.FileMode(0666))
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
 	for i := 1; i <= 20; i++ {
 
 		currentTime := time.Now().UTC()
 		formattedTime := currentTime.Format(timeStampFormat)
-		logMsg := strconv.Itoa(i) + " " + formattedTime + " " + ipAddress + ":" + servicePort
+		message := "SND " + strconv.Itoa(i) + " " + formattedTime + " " + ipAddress + ":" + servicePort
 
-		err := writeLog(file, logMsg)
+		err := publishToRabbitMq(ch, msgTopic, message)
 		if err != nil {
-			log.Panic(err)
+			fmt.Println(err)
 		}
 
-		err = callService(file, i, url, logMsg)
+		err = callService(ch, logTopic, url, message, timeStampFormat)
 		if err != nil {
-			log.Panic(err)
+			fmt.Println(err)
 		}
 		time.Sleep(2 * time.Second)
 
 		if i == 20 {
 			stopMsg := "STOP"
-			err := writeLog(file, stopMsg)
+			err := publishToRabbitMq(ch, logTopic, stopMsg)
 			if err != nil {
-				log.Panic(err)
+				fmt.Println(err)
 			}
-
-			err = callService(file, i, url, stopMsg)
-			if err != nil {
-				log.Panic(err)
-			}
-			err = file.Close()
-			if err != nil {
-				os.Exit(0)
-			}
-			os.Exit(0)
 		}
 
 	}
 
+	fmt.Println("Application is running. Press Ctrl+C to exit.")
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigChan
+
 }
 
-func callService(file *os.File, i int, url string, logMsg string) error {
-	msgStruct := Msg{logMsg}
+func callService(ch *amqp.Channel, logTopic string, url string, message string, timeStampFormat string) error {
+	msgStruct := Msg{message}
 	jsonMsgStr, _ := json.Marshal(msgStruct)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonMsgStr))
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
-	_, err = client.Do(req)
-	if err != nil && i != 20 {
-		_, err2 := file.WriteString(err.Error() + "\n")
-		if err2 != nil {
-			return err
-		}
-	}
-	return nil
-}
+	resp, err := client.Do(req)
 
-func writeLog(file *os.File, logMsg string) error {
-	_, err := file.WriteString(logMsg + "\n")
+	code := ""
+
+	if err != nil {
+		code = "500"
+	} else {
+		code = strconv.Itoa(resp.StatusCode)
+	}
+
+	currentTime := time.Now().UTC()
+	formattedTime := currentTime.Format(timeStampFormat)
+	respMsg := code + " " + formattedTime
+
+	err = publishToRabbitMq(ch, logTopic, respMsg)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -118,4 +139,35 @@ func getIPAddress(serviceName string) (string, error) {
 		return "", fmt.Errorf("no IP address found for container: %s", serviceName)
 	}
 	return address[0], nil
+}
+
+func publishToRabbitMq(ch *amqp.Channel, queueName string, message string) error {
+
+	_, err := ch.QueueDeclare(
+		queueName,
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = ch.Publish(
+		"",
+		queueName,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(message),
+		},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }

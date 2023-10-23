@@ -1,21 +1,40 @@
 version: '3'
 
 services:
-  service1:
+  rabbitmq-spj:
+    image: rabbitmq:alpine
+    container_name: rabbitmq-spj
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - network1-spj
+
+  service1-spj:
     build:
       context: ./service1
-    volumes:
-      - ./logs:/logs
+    depends_on:
+      - rabbitmq-spj
     networks:
-      - network1
+      - network1-spj
 
-  service2:
+  service2-spj:
     build:
       context: ./service2
-    volumes:
-      - ./logs:/logs
+    depends_on:
+      - rabbitmq-spj
     networks:
-      - network1
+      - network1-spj
+
+  monitor-spj:
+    build:
+      context: ./monitor
+    depends_on:
+      - rabbitmq-spj
+    networks:
+      - network1-spj
+    ports:
+      - "8087:8087"
 
 networks:
-  network1:
+  network1-spj:
