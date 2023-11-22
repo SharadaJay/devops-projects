@@ -1,0 +1,28 @@
+---
+- name: Ensure the target host has the latest version of git version management system
+  hosts: all
+  remote_user: ssluser 
+  become: yes
+  tasks:
+    - name: Update Git Version
+      apt:
+        name: git
+        state: latest
+
+- name: Query the uptime of the target host
+  hosts: all
+  remote_user: ssluser
+  become: yes
+  tasks:
+    - name: Get Uptime
+      command: uptime
+      register: uptime_output
+
+- name: Display Uptime of the target host
+  hosts: all
+  remote_user: ssluser
+  tasks:
+    - name: Display Uptime
+      debug:
+        var: uptime_output.stdout_lines
+
