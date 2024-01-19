@@ -20,4 +20,4 @@ test:
 deploy:
   stage: deploy
   script:
-    - docker-compose up -d
+    - sudo docker-compose up -d
