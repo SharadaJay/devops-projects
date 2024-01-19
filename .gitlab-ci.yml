@@ -10,7 +10,7 @@ stages:
 build:
   stage: build
   script:
-    - docker-compose build
+    - sudo docker-compose build
 
 test:
   stage: test
