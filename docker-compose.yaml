@@ -11,6 +11,8 @@ services:
       - network1-spj
 
   service1-spj:
+    image: service1-spj
+    container_name: service1-spj
     build:
       context: ./service1
     depends_on:
@@ -19,6 +21,8 @@ services:
       - network1-spj
 
   service2-spj:
+    image: service2-spj
+    container_name: service2-spj
     build:
       context: ./service2
     depends_on:
@@ -27,6 +31,8 @@ services:
       - network1-spj
 
   monitor-spj:
+    image: monitor-spj
+    container_name: monitor-spj
     build:
       context: ./monitor
     depends_on:
