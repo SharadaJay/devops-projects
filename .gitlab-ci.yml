@@ -15,7 +15,7 @@ build:
 test:
   stage: test
   script:
-    - echo "Running Tests ....."
+    - echo "Running Tests ........."
 
 deploy:
   stage: deploy
