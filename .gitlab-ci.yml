@@ -10,7 +10,7 @@ stages:
 build:
   stage: build
   script:
-    - echo $USER && sudo docker-compose build
+    - echo $USER && docker-compose build
 
 test:
   stage: test
@@ -20,4 +20,4 @@ test:
 deploy:
   stage: deploy
   script:
-    - echo $USER && sudo docker-compose up -d
+    - echo $USER && docker-compose up -d
