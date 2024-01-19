@@ -10,14 +10,14 @@ stages:
 build:
   stage: build
   script:
-    - echo $USER && docker-compose build
+    - docker-compose build
 
 test:
   stage: test
   script:
-    - echo $USER && echo "Running Tests ........."
+    - echo "Running Tests ........."
 
 deploy:
   stage: deploy
   script:
-    - echo $USER && docker-compose up -d
+    - docker-compose up -d
