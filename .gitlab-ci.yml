@@ -1,0 +1,23 @@
+default:
+  tags:
+    - devops-project
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker-compose build
+
+test:
+  stage: test
+  script:
+    - echo "Running Tests"
+
+deploy:
+  stage: deploy
+  script:
+    - docker-compose up -d
