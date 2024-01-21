@@ -10,14 +10,14 @@ stages:
 build:
   stage: build
   script:
-    - docker-compose build
+    - pwd && docker-compose build
 
 test:
   stage: test
   script:
-    - echo "Running Tests !!!!!!"
+    - pwd && echo "Running Tests !!!!!!"
 
 deploy:
   stage: deploy
   script:
-    - docker-compose up -d
+    - pwd && docker-compose up -d
