@@ -15,7 +15,7 @@ build:
 test:
   stage: test
   script:
-    - echo "Running Tests ...." && pwd && cd tests && pwd && go test ./... && cd ..
+    - echo "Running Tests ...." && pwd && cd tests && pwd && go test -v ./... && cd ..
 
 deploy:
   stage: deploy
