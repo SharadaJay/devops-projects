@@ -42,5 +42,17 @@ services:
     ports:
       - "8087:8087"
 
+  api-gateway-spj:
+    image: api-gateway-spj
+    container_name: api-gateway-spj
+    build:
+      context: ./api-gateway
+    depends_on:
+      - rabbitmq-spj
+    networks:
+      - network1-spj
+    ports:
+      - "8083:8083"
+
 networks:
   network1-spj:
