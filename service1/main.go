@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"com.example.docker.compose/service1/config"
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
@@ -9,11 +10,11 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
-	"syscall"
 	"time"
 
+	"com.example.docker.compose/service1/handlers"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -40,6 +41,15 @@ func main() {
 	rabbitmqIPAddress, err := getIPAddress(rabbitMQServiceName)
 	connectionStr := "amqp://guest:guest@" + rabbitmqIPAddress + ":5672/"
 
+	r := gin.Default()
+	r.PUT("/state", handlers.PutStateHandler)
+
+	go func() {
+		if err := r.Run(":8080"); err != nil {
+			fmt.Println("Error starting server:", err)
+		}
+	}()
+
 	isConnected := false
 	var conn *amqp.Connection
 
@@ -63,41 +73,51 @@ func main() {
 
 	fmt.Println(ipAddress)
 
+	config.SetCurrentState("INIT")
+
+	fmt.Println("Initialized Current State to : ", config.CurrentState)
+
 	url := "http://" + ipAddress + ":" + servicePort + servicePath
 
-	for i := 1; i <= 20; i++ {
+	go func() {
+		i := 1
 
-		currentTime := time.Now().UTC()
-		formattedTime := currentTime.Format(timeStampFormat)
-		message := "SND " + strconv.Itoa(i) + " " + formattedTime + " " + ipAddress + ":" + servicePort
+		for {
+			switch config.CurrentState {
+			case "INIT":
+				i = 1
+				config.SetCurrentState("RUNNING")
 
-		err := publishToRabbitMq(ch, msgTopic, message)
-		if err != nil {
-			fmt.Println(err)
-		}
+			case "PAUSED":
+				fmt.Println("Loop paused")
+				time.Sleep(1 * time.Second) // Add a delay to prevent high CPU usage
 
-		err = callService(ch, logTopic, url, message, timeStampFormat)
-		if err != nil {
-			fmt.Println(err)
-		}
-		time.Sleep(2 * time.Second)
+			case "RUNNING":
+				currentTime := time.Now().UTC()
+				formattedTime := currentTime.Format(timeStampFormat)
+				message := "SND " + strconv.Itoa(i) + " " + formattedTime + " " + ipAddress + ":" + servicePort
 
-		if i == 20 {
-			stopMsg := "SND STOP"
-			err := publishToRabbitMq(ch, logTopic, stopMsg)
-			if err != nil {
-				fmt.Println(err)
+				err := publishToRabbitMq(ch, msgTopic, message)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				err = callService(ch, logTopic, url, message, timeStampFormat)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				i++
+				time.Sleep(2 * time.Second)
+
+			default:
+				time.Sleep(1 * time.Second)
 			}
 		}
+	}()
 
-	}
-
-	fmt.Println("Application is running. Press Ctrl+C to exit.")
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	<-sigChan
-
+	// Keep the main goroutine running
+	select {}
 }
 
 func callService(ch *amqp.Channel, logTopic string, url string, message string, timeStampFormat string) error {
