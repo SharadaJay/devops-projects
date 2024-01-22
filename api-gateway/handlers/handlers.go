@@ -52,3 +52,22 @@ func PutStateHandler(c *gin.Context) {
 
 	c.Data(resp.StatusCode, "text/plain", body)
 }
+
+func GetStateHandler(c *gin.Context) {
+
+	service1getStateUrl := config.Service1URL + "/state"
+	resp, err := http.Get(service1getStateUrl)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Data(resp.StatusCode, "text/plain", body)
+}
