@@ -71,3 +71,23 @@ func GetStateHandler(c *gin.Context) {
 
 	c.Data(resp.StatusCode, "text/plain", body)
 }
+
+func GetRunLogHandler(c *gin.Context) {
+
+	monitorGetRunLogURL := config.MonitorURL + "/run-log"
+	resp, err := http.Get(monitorGetRunLogURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Data(resp.StatusCode, "text/plain", body)
+}
+
