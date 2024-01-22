@@ -22,3 +22,7 @@ func PutStateHandler(c *gin.Context) {
 	fmt.Println("UPDATED STATE VARIABLE", config.CurrentState)
 	c.Data(http.StatusOK, "text/plain", []byte("State updated successfully"))
 }
+
+func GetStateHandler(c *gin.Context) {
+	c.Data(http.StatusOK, "text/plain", []byte(config.CurrentState))
+}

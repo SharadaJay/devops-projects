@@ -43,6 +43,7 @@ func main() {
 
 	r := gin.Default()
 	r.PUT("/state", handlers.PutStateHandler)
+	r.GET("/state", handlers.GetStateHandler)
 
 	go func() {
 		if err := r.Run(":8080"); err != nil {
