@@ -17,7 +17,7 @@ func init() {
 	err := godotenv.Load(".env")
 
 	if err != nil {
-		log.Fatal("Error loading .env file iyrieyti")
+		log.Fatal("Error loading .env file")
 	}
 
 	service1Port := os.Getenv("SERVICE_1_PORT")
