@@ -18,9 +18,14 @@ func PutStateHandler(c *gin.Context) {
 	}
 	msgBody = buf.String()
 	fmt.Println("RECEIVED STATE", msgBody)
-	config.SetCurrentState(msgBody)
-	fmt.Println("UPDATED STATE VARIABLE", config.CurrentState)
-	c.Data(http.StatusOK, "text/plain", []byte("State updated successfully"))
+	if msgBody == "INIT" || msgBody == "RUNNING" || msgBody == "PAUSED" || msgBody == "SHUTDOWN" {
+		config.SetCurrentState(msgBody)
+		fmt.Println("UPDATED STATE VARIABLE", config.CurrentState)
+		c.Data(http.StatusOK, "text/plain", []byte("State updated successfully"))
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid State Value"})
+		return
+	}
 }
 
 func GetStateHandler(c *gin.Context) {
