@@ -12,3 +12,8 @@ func GetMessagesHandler(c *gin.Context) {
 func PutStateHandler(c *gin.Context) {
 	c.String(http.StatusOK, "Successfully Updated State")
 }
+
+func GetStateHandler(c *gin.Context) {
+	c.String(http.StatusOK, "RUNNING")
+}
+
