@@ -17,3 +17,7 @@ func GetStateHandler(c *gin.Context) {
 	c.String(http.StatusOK, "RUNNING")
 }
 
+func GetRunLogHandler(c *gin.Context) {
+	c.String(http.StatusOK, "2023-11-01T06.35:01.380Z: INIT->RUNNING")
+}
+
