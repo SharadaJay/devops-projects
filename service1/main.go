@@ -34,6 +34,7 @@ func main() {
 	servicePath := os.Getenv("SERVICE_2_CALL_PATH")
 	msgTopic := os.Getenv("MSG_TOPIC")
 	logTopic := os.Getenv("LOG_TOPIC")
+	runLogTopic := os.Getenv("RUN_LOG_TOPIC")
 	timeStampFormat := os.Getenv("TIMESTAMP_FORMAT")
 	serviceName := os.Getenv("SERVICE2_SERVICE_NAME")
 	rabbitMQServiceName := os.Getenv("RABBITMQ_SERVICE_NAME")
@@ -70,6 +71,10 @@ func main() {
 	}
 	defer ch.Close()
 
+	config.SetRunLogTopic(runLogTopic)
+	config.SetRabbitMQChannel(ch)
+	config.SetTimeStampFormat(timeStampFormat)
+
 	ipAddress, err := getIPAddress(serviceName)
 
 	fmt.Println(ipAddress)
@@ -88,6 +93,13 @@ func main() {
 			case "INIT":
 				i = 1
 				config.SetCurrentState("RUNNING")
+				currentTime := time.Now().UTC()
+				formattedTime := currentTime.Format(timeStampFormat)
+				message := formattedTime + ": " + "INIT" + "->" + "RUNNING"
+				err := publishToRabbitMq(ch, runLogTopic, message)
+				if err != nil {
+					fmt.Println(err)
+				}
 
 			case "PAUSED":
 				fmt.Println("Loop paused")

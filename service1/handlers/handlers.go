@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func PutStateHandler(c *gin.Context) {
@@ -19,9 +20,20 @@ func PutStateHandler(c *gin.Context) {
 	msgBody = buf.String()
 	fmt.Println("RECEIVED STATE", msgBody)
 	if msgBody == "INIT" || msgBody == "RUNNING" || msgBody == "PAUSED" || msgBody == "SHUTDOWN" {
+		previousState := config.CurrentState
 		config.SetCurrentState(msgBody)
 		fmt.Println("UPDATED STATE VARIABLE", config.CurrentState)
 		c.Data(http.StatusOK, "text/plain", []byte("State updated successfully"))
+		if previousState != config.CurrentState {
+			currentTime := time.Now().UTC()
+			formattedTime := currentTime.Format(config.TimeStampFormat)
+			message := formattedTime + ": " + previousState + "->" + config.CurrentState
+			err := config.PublishToRabbitMq(config.RabbitMQChannel, config.RunLogTopic, message)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid State Value"})
 		return
