@@ -19,6 +19,8 @@ services:
       - rabbitmq-spj
     networks:
       - network1-spj
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   service2-spj:
     image: service2-spj
@@ -39,8 +41,6 @@ services:
       - rabbitmq-spj
     networks:
       - network1-spj
-    ports:
-      - "8087:8087"
 
   api-gateway-spj:
     image: api-gateway-spj
