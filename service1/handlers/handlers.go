@@ -35,7 +35,7 @@ func PutStateHandler(c *gin.Context) {
 			}
 		}
 	} else {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid State Value"})
+		c.Data(http.StatusBadRequest, "text/plain", []byte("Invalid State Value"))
 		return
 	}
 }

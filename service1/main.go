@@ -3,17 +3,22 @@ package main
 import (
 	"bytes"
 	"com.example.docker.compose/service1/config"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/streadway/amqp"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"com.example.docker.compose/service1/handlers"
+	"github.com/docker/docker/client"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -103,7 +108,7 @@ func main() {
 
 			case "PAUSED":
 				fmt.Println("Loop paused")
-				time.Sleep(1 * time.Second) // Add a delay to prevent high CPU usage
+				time.Sleep(2 * time.Second) // Add a delay to prevent high CPU usage
 
 			case "RUNNING":
 				currentTime := time.Now().UTC()
@@ -122,6 +127,14 @@ func main() {
 
 				i++
 				time.Sleep(2 * time.Second)
+
+			case "SHUTDOWN":
+				fmt.Println("SHUTDOWN command received")
+				time.Sleep(5 * time.Second) // Add a delay before shutting down containers
+				err = stopAllContainers()
+				if err != nil {
+					fmt.Println(err)
+				}
 
 			default:
 				time.Sleep(1 * time.Second)
@@ -203,5 +216,49 @@ func publishToRabbitMq(ch *amqp.Channel, queueName string, message string) error
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func stopAllContainers() error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+
+	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	if err != nil {
+		return err
+	}
+
+	skipContainers := make(map[string]bool)
+
+	for _, container := range containers {
+		if strings.Contains(container.Names[0], "service1-spj") {
+			skipContainers[container.ID] = true
+		}
+	}
+
+	stopOptions := container.StopOptions{}
+
+	for _, container := range containers {
+		if skipContainers[container.ID] {
+			continue
+		}
+
+		fmt.Printf("Stopping container %s...\n", container.ID[:10])
+		if err := cli.ContainerStop(context.Background(), container.ID, stopOptions); err != nil {
+			return err
+		}
+	}
+
+	for _, container := range containers {
+		if skipContainers[container.ID] {
+			fmt.Printf("Stopping container %s...\n", container.ID[:10])
+			if err := cli.ContainerStop(context.Background(), container.ID, stopOptions); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
