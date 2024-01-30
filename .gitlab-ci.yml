@@ -21,7 +21,7 @@ test:
 sonarqube:
   stage: sonarqube
   script:
-    - docker run --rm -e SONAR_HOST_URL="http://localhost:9000" -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=api-gateway" -e SONAR_LOGIN="squ_52c349d75d62086aeac4e1ae0e1b3a2a3b27f376" -v "./api-gateway:/usr/src" sonarsource/sonar-scanner-cli
+    - cd api-gateway && sonar-scanner -Dsonar.projectKey=api-gateway -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_52c349d75d62086aeac4e1ae0e1b3a2a3b27f376
 
 
 deploy:
