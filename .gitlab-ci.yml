@@ -21,7 +21,7 @@ test:
 sonarqube:
   stage: sonarqube
   script:
-    - cd api-gateway && sonar-scanner -Dsonar.projectKey=api-gateway -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_52c349d75d62086aeac4e1ae0e1b3a2a3b27f376
+    - cd api-gateway && sonar-scanner -X -Dsonar.projectKey=api-gateway -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_52c349d75d62086aeac4e1ae0e1b3a2a3b27f376
 
 
 deploy:
