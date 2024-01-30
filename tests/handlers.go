@@ -25,3 +25,9 @@ func GetRunLogHandler(c *gin.Context) {
 	c.String(http.StatusOK, "2023-11-01T06.35:01.380Z: INIT->RUNNING")
 }
 
+func GetMQStatisticHandler(c *gin.Context) {
+	var statResponse StatResponse
+	statResponse.OverallStats.ClusterName = "cluster-1"
+	c.JSON(http.StatusOK, statResponse)
+}
+

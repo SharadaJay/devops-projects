@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 	"bytes"
+	"encoding/json"
 )
 
 func TestGetMessagesHandler(t *testing.T) {
@@ -221,6 +222,33 @@ func TestGetRunLogHandler(t *testing.T) {
 	contentType := w.Header().Get("Content-Type")
 	if contentType != "text/plain; charset=utf-8" {
 		t.Errorf("Expected Content-Type %s, got %s", "text/plain; charset=utf-8", contentType)
+	}
+}
+
+func TestGetMQStatisticHandler(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.Default()
+	r.GET("/mqstatistic", GetMQStatisticHandler)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/mqstatistic", nil)
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	contentType := w.Header().Get("Content-Type")
+	if contentType != "application/json; charset=utf-8" {
+		t.Errorf("Expected Content-Type %s, got %s", "application/json; charset=utf-8", contentType)
+	}
+
+	var actualResponse StatResponse
+	_ = json.NewDecoder(w.Body).Decode(&actualResponse)
+
+	if actualResponse.OverallStats.ClusterName != "cluster-1" {
+		t.Errorf("Expected Cluster-Name %s, got %s", "cluster-1", actualResponse.OverallStats.ClusterName)
 	}
 }
 
