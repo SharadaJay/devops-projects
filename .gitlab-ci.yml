@@ -11,7 +11,7 @@ stages:
 build:
   stage: build
   script:
-    - docker-compose build
+    - docker-compose build –-no-cache
 
 test:
   stage: test
