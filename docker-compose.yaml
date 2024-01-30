@@ -2,7 +2,7 @@ version: '3'
 
 services:
   rabbitmq-spj:
-    image: rabbitmq:alpine
+    image: rabbitmq:management-alpine
     container_name: rabbitmq-spj
     environment:
       - RABBITMQ_DEFAULT_USER=guest
