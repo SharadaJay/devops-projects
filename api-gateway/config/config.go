@@ -12,6 +12,10 @@ var Service1URL string
 var Service2URL string
 var MonitorURL string
 var RabbitMQURL string
+var RabbitMQUser string
+var RabbitMQPwd string
+
+const HTTP_CONST = "http://"
 
 func init() {
 	err := godotenv.Load(".env")
@@ -28,16 +32,18 @@ func init() {
 	monitorName := os.Getenv("MONITOR_SERVICE_NAME")
 	rabbitMQPort := os.Getenv("RABBITMQ_PORT")
 	rabbitMQName := os.Getenv("RABBITMQ_SERVICE_NAME")
+	RabbitMQUser = os.Getenv("RABBITMQ_USER")
+	RabbitMQPwd = os.Getenv("RABBITMQ_PWD")
 
 	service1IpAddress, err := getIPAddress(service1Name)
 	service2IpAddress, err := getIPAddress(service2Name)
 	monitorIpAddress, err := getIPAddress(monitorName)
 	rabbitMQIpAddress, err := getIPAddress(rabbitMQName)
 
-	Service1URL = "http://" + service1IpAddress + ":" + service1Port
-	Service2URL = "http://" + service2IpAddress + ":" + service2Port
-	MonitorURL = "http://" + monitorIpAddress + ":" + monitorPort
-	RabbitMQURL = "http://" + rabbitMQIpAddress + ":" + rabbitMQPort
+	Service1URL = HTTP_CONST + service1IpAddress + ":" + service1Port
+	Service2URL = HTTP_CONST + service2IpAddress + ":" + service2Port
+	MonitorURL = HTTP_CONST + monitorIpAddress + ":" + monitorPort
+	RabbitMQURL = HTTP_CONST + rabbitMQIpAddress + ":" + rabbitMQPort
 
 }
 

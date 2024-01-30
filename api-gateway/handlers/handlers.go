@@ -11,6 +11,8 @@ import (
 	"net/http"
 )
 
+const TEXT_PLAIN = "text/plain"
+
 func GetMessagesHandler(c *gin.Context) {
 
 	monitorURL := config.MonitorURL
@@ -27,7 +29,7 @@ func GetMessagesHandler(c *gin.Context) {
 		return
 	}
 
-	c.Data(resp.StatusCode, "text/plain", body)
+	c.Data(resp.StatusCode, TEXT_PLAIN, body)
 }
 
 func PutStateHandler(c *gin.Context) {
@@ -38,7 +40,7 @@ func PutStateHandler(c *gin.Context) {
 		fmt.Println("Error creating request:", err)
 		return
 	}
-	req.Header.Set("Content-Type", "text/plain")
+	req.Header.Set("Content-Type", TEXT_PLAIN)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -53,7 +55,7 @@ func PutStateHandler(c *gin.Context) {
 		return
 	}
 
-	c.Data(resp.StatusCode, "text/plain", body)
+	c.Data(resp.StatusCode, TEXT_PLAIN, body)
 }
 
 func GetStateHandler(c *gin.Context) {
@@ -72,7 +74,7 @@ func GetStateHandler(c *gin.Context) {
 		return
 	}
 
-	c.Data(resp.StatusCode, "text/plain", body)
+	c.Data(resp.StatusCode, TEXT_PLAIN, body)
 }
 
 func GetRunLogHandler(c *gin.Context) {
@@ -91,14 +93,12 @@ func GetRunLogHandler(c *gin.Context) {
 		return
 	}
 
-	c.Data(resp.StatusCode, "text/plain", body)
+	c.Data(resp.StatusCode, TEXT_PLAIN, body)
 }
 
 func GetMQStatisticHandler(c *gin.Context) {
 
-	username := "guest"
-	password := "guest"
-	auth := base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
+	auth := base64.StdEncoding.EncodeToString([]byte(config.RabbitMQUser + ":" + config.RabbitMQPwd))
 
 	rabbitMQGetOverallURL := config.RabbitMQURL + "/api/overview"
 	rabbitMQGetQueuesURL := config.RabbitMQURL + "/api/queues"
