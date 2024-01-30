@@ -1,18 +1,23 @@
-**$ uname -a**
+## Steps and Procedure
 
-*MINGW64_NT-10.0-22621 DESKTOP-1GECU2I 3.4.7-25de8b84.x86_64 2023-08-28 21:32 UTC x86_64 Msys*
-<br>
-<br>
-<br>
+1. Clone the repository.
+    ```bash
+           git clone -b project https://course-gitlab.tuni.fi/compse140-fall2023/fnshja.git
+    ```
 
-**$ docker --version**
+2. Change the directory.
+    ```bash
+           cd fnshja
+    ```
+   
+3. Build the system.
+    ```bash
+           docker-compose build --no-cache
+    ```
 
-*Docker version 24.0.6, build ed223bc*
-<br>
-<br>
-<br>
-
-**$ docker-compose --version**
-
-*Docker Compose version v2.21.0-desktop.1*
-
+4. Run the system.
+    ```bash
+           docker-compose up -d
+    ```
+   
+5. Use curl/Postman to test the system (See **EndReport.pdf** for more details).
