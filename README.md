@@ -20,4 +20,4 @@
            docker-compose up -d
     ```
    
-5. Use curl/Postman to test the system (See **EndReport.pdf** for more details).
+5. Wait for a bit until all the services become ready (approximately 25 seconds) and then use curl/Postman to test the system (See **EndReport.pdf** for more details).
