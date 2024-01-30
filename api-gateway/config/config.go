@@ -6,12 +6,12 @@ import (
 	"log"
 	"net"
 	"os"
-	"path/filepath"
 )
 
 var Service1URL string
 var Service2URL string
 var MonitorURL string
+var RabbitMQURL string
 
 func init() {
 	err := godotenv.Load(".env")
@@ -26,14 +26,18 @@ func init() {
 	service2Name := os.Getenv("SERVICE2_SERVICE_NAME")
 	monitorPort := os.Getenv("MONITOR_PORT")
 	monitorName := os.Getenv("MONITOR_SERVICE_NAME")
+	rabbitMQPort := os.Getenv("RABBITMQ_PORT")
+	rabbitMQName := os.Getenv("RABBITMQ_SERVICE_NAME")
 
 	service1IpAddress, err := getIPAddress(service1Name)
 	service2IpAddress, err := getIPAddress(service2Name)
 	monitorIpAddress, err := getIPAddress(monitorName)
+	rabbitMQIpAddress, err := getIPAddress(rabbitMQName)
 
 	Service1URL = "http://" + service1IpAddress + ":" + service1Port
 	Service2URL = "http://" + service2IpAddress + ":" + service2Port
 	MonitorURL = "http://" + monitorIpAddress + ":" + monitorPort
+	RabbitMQURL = "http://" + rabbitMQIpAddress + ":" + rabbitMQPort
 
 }
 
@@ -47,26 +51,4 @@ func getIPAddress(serviceName string) (string, error) {
 		return "", fmt.Errorf("no IP address found for container: %s", serviceName)
 	}
 	return address[0], nil
-}
-
-func dir(envFile string) string {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
-	for {
-		goModPath := filepath.Join(currentDir, "go.mod")
-		if _, err := os.Stat(goModPath); err == nil {
-			break
-		}
-
-		parent := filepath.Dir(currentDir)
-		if parent == currentDir {
-			panic(fmt.Errorf("go.mod not found"))
-		}
-		currentDir = parent
-	}
-
-	return filepath.Join(currentDir, envFile)
 }
