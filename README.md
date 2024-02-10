@@ -1,13 +1,24 @@
+# devops-course
+Git Repository for Continuous Development and Deployment - DevOps Master's Course at Tampere University
+
+<br>
+
+**project** branch holds the implementation of the instructions provided in the *project-instructions* PDF file. This is the final project of the course. Please refer to the instructions here [project-instructions](./project-instructions.pdf).
+
+<br>
+
+
+
 ## Steps and Procedure
 
 1. Clone the repository.
     ```bash
-           git clone -b project https://course-gitlab.tuni.fi/compse140-fall2023/fnshja.git
+           git clone -b project https://github.com/SharadaJay/devops-course.git
     ```
 
 2. Change the directory.
     ```bash
-           cd fnshja
+           cd devops-course
     ```
    
 3. Build the system.
