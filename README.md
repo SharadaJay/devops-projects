@@ -1,6 +1,18 @@
-# devops-course
-Git Repository for Continuous Development and Deployment - DevOps Master's Course at Tampere University
+# devops-projects
+Git Repository for the projects of Continuous Development and Deployment - DevOps Master's Course at Tampere University
 <br>
+
+## Technology Stack
+- **Java**
+- **Spring Boot**
+- **Golang**
+- **Docker**
+- **Docker**
+- **Ansible**
+- **GitLab CI/CD**
+- **SonarQube**
+
+
 
 ## Repository Structure
 
