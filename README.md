@@ -7,7 +7,7 @@ Git Repository for the projects of Continuous Development and Deployment - DevOp
 - **Spring Boot**
 - **Golang**
 - **Docker**
-- **Docker**
+- **Docker Compose**
 - **Ansible**
 - **GitLab CI/CD**
 - **SonarQube**
